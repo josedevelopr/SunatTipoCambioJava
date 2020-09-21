@@ -13,4 +13,5 @@ public class TipoCambio {
     private Date fecha;
     private Double precioVenta;
     private Double precioCompra;
+    private Double precioPromedio;
 }

@@ -1,5 +1,7 @@
 package com.tipocambio.tipocambio.prueba;
 
+import com.tipocambio.tipocambio.modelos.TipoCambio;
+import com.tipocambio.tipocambio.servicio.TipoCambioServicio;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -8,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -62,6 +66,28 @@ public class Pruebas {
         } catch(Exception e){
             log.error(e.toString());
         }
+/*
+        TipoCambioServicio servicio = new TipoCambioServicio();
+        TipoCambio resultado = new TipoCambio();
 
+        try {
+            int dia = 1;
+            int mes = 9;
+            int anio = 2020;
+            Map<Integer, Map<String, Double>> mapTipoCambio = servicio.obtenerDatos(mes, anio);
+
+            double precioCompra = mapTipoCambio.get(dia).get("Compra");
+            double precioVenta = mapTipoCambio.get(dia).get("Venta");
+
+            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+            Date fechaTC = formatter.parse(dia+"/"+mes+"/"+anio);
+            resultado.setPrecioCompra(precioCompra);
+            resultado.setPrecioVenta(precioVenta);
+            resultado.setFecha(fechaTC);
+            resultado.setPrecioPromedio((precioCompra+precioVenta)/2);
+            log.info(mapTipoCambio.toString());
+        } catch(Exception e) {
+            log.error(e.toString());
+        }*/
     }
 }

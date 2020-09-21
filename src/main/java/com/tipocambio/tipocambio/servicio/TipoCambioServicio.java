@@ -10,8 +10,8 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class TipoCambioServicio implements TipoCambioRepositorio {
 
@@ -75,7 +75,44 @@ public class TipoCambioServicio implements TipoCambioRepositorio {
 
     @Override
     public TipoCambio obtenerTipoCambioPorDia(int dia, int mes, int anio) {
-        return null;
+        TipoCambio resultado = new TipoCambio();
+
+        try {
+            Map<Integer, Map<String, Double>> tipoCambioPorMes = obtenerDatos(mes, anio);
+
+            double precioCompra = tipoCambioPorMes.get(dia).get("Compra");
+            double precioVenta = tipoCambioPorMes.get(dia).get("Venta");
+
+            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+            Date fechaTC = formatter.parse(dia+"/"+mes+"/"+anio);
+            resultado.setPrecioCompra(precioCompra);
+            resultado.setPrecioVenta(precioVenta);
+            resultado.setFecha(fechaTC);
+            resultado.setPrecioPromedio((precioCompra+precioVenta)/2);
+            log.info(tipoCambioPorMes.toString());
+        } catch(Exception e) {
+            resultado =  new TipoCambio();
+            log.error(e.toString());
+        }
+
+        return resultado;
+    }
+
+    @Override
+    public List<TipoCambio> obtenerTipoCambioPorMes(int mes, int anio) {
+        List<TipoCambio> resultado = new ArrayList<>();
+
+        try {
+
+            Map<Integer, Map<String, Double>> mapDatos = obtenerDatos(mes, anio);
+            // mapDatos.forEach();
+
+        } catch(Exception e){
+            resultado =  new ArrayList<>();
+            log.error(e.toString());
+        }
+
+        return resultado;
     }
 
 
