@@ -1,5 +1,8 @@
-package com.tipocambio.tipocambio.prueba;
+package com.tipocambio.tipocambio.servicio;
 
+import com.tipocambio.tipocambio.modelos.TipoCambio;
+import com.tipocambio.tipocambio.prueba.Pruebas;
+import com.tipocambio.tipocambio.repositorio.TipoCambioRepositorio;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -7,19 +10,21 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Pruebas {
+public class TipoCambioServicio implements TipoCambioRepositorio {
 
-    private static final Logger log = LoggerFactory.getLogger(Pruebas.class);
-    public static void main(String[] args) {
+    private static final Logger log = LoggerFactory.getLogger(TipoCambioRepositorio.class);
+
+    @Override
+    public Map<Integer, Map<String, Double>> obtenerDatos(int mes, int anio) {
+        Map<Integer, Map<String, Double>> resultado = new HashMap<>();
+
         try {
             //Document doc = Jsoup.connect("https://e-consulta.sunat.gob.pe/cl-at-ittipcam/tcS01Alias").get();
-            String url = String.format("https://e-consulta.sunat.gob.pe/cl-at-ittipcam/tcS01Alias?mes=%1$d&anho=%2$d",9,2020);
+            String url = String.format("https://e-consulta.sunat.gob.pe/cl-at-ittipcam/tcS01Alias?mes=%1$d&anho=%2$d",mes,anio);
             Document doc = Jsoup.connect(url).get();
-
             log.info( doc.title());
 
             Map<Integer, Map<String, Double>> mapTipCambio = new HashMap<>();
@@ -58,10 +63,20 @@ public class Pruebas {
             }
 
             log.info(mapTipCambio.toString());
+            resultado = mapTipCambio;
 
         } catch(Exception e){
             log.error(e.toString());
+            resultado = new HashMap<>();
         }
 
+        return resultado;
     }
+
+    @Override
+    public TipoCambio obtenerTipoCambioPorDia(int dia, int mes, int anio) {
+        return null;
+    }
+
+
 }
