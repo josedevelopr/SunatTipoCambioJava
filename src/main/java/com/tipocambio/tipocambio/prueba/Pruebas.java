@@ -13,13 +13,15 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Pruebas {
 
     private static final Logger log = LoggerFactory.getLogger(Pruebas.class);
     public static void main(String[] args) {
-        try {
+        TipoCambioServicio servicio = new TipoCambioServicio();
+       /* try {
             //Document doc = Jsoup.connect("https://e-consulta.sunat.gob.pe/cl-at-ittipcam/tcS01Alias").get();
             String url = String.format("https://e-consulta.sunat.gob.pe/cl-at-ittipcam/tcS01Alias?mes=%1$d&anho=%2$d",9,2020);
             Document doc = Jsoup.connect(url).get();
@@ -65,9 +67,9 @@ public class Pruebas {
 
         } catch(Exception e){
             log.error(e.toString());
-        }
+        }*/
 /*
-        TipoCambioServicio servicio = new TipoCambioServicio();
+
         TipoCambio resultado = new TipoCambio();
 
         try {
@@ -89,5 +91,21 @@ public class Pruebas {
         } catch(Exception e) {
             log.error(e.toString());
         }*/
+
+        List lstTipoCambioSetiembre = servicio.obtenerDatos(9,2020);
+        log.info(lstTipoCambioSetiembre.toString());
+    try {
+        TipoCambio tipoCambioHoy = servicio.obtenerTipoCambioPorDia(19,9,2020);
+        log.info("\nTipo de cambio para hoy :"+tipoCambioHoy.toString());
+    } catch (Exception e) {
+        log.error(e.toString());
+    }
+
+        List lstTipoCambio = servicio.obtenerTipoCambioPorMes(9,2020);
+        lstTipoCambio.forEach(
+                tc -> log.info(tc.toString())
+        );
+
+
     }
 }

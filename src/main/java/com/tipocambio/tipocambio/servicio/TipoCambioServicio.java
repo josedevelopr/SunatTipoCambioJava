@@ -10,16 +10,18 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class TipoCambioServicio implements TipoCambioRepositorio {
 
     private static final Logger log = LoggerFactory.getLogger(TipoCambioRepositorio.class);
 
     @Override
-    public Map<Integer, Map<String, Double>> obtenerDatos(int mes, int anio) {
-        Map<Integer, Map<String, Double>> resultado = new HashMap<>();
+    public List<TipoCambio> obtenerDatos(int mes, int anio) {
+        List<TipoCambio> resultado = new ArrayList<>();
 
         try {
             //Document doc = Jsoup.connect("https://e-consulta.sunat.gob.pe/cl-at-ittipcam/tcS01Alias").get();
@@ -27,7 +29,7 @@ public class TipoCambioServicio implements TipoCambioRepositorio {
             Document doc = Jsoup.connect(url).get();
             log.info( doc.title());
 
-            Map<Integer, Map<String, Double>> mapTipCambio = new HashMap<>();
+            List<TipoCambio> lstTipoCambio = new ArrayList<>();
 
             Elements newsHeadlines = doc.select("table");
             Elements tipcamTable = newsHeadlines.get(1).select("tr");
@@ -36,7 +38,9 @@ public class TipoCambioServicio implements TipoCambioRepositorio {
                 if(numFila > 0) {
                     int numColumna = 0;
                     int diaTipCam = 0;
-                    Map<String, Double> mapValTipoCambio = new HashMap<>();
+                    double tipoCompra = 0;
+                    double tipoVenta = 0;
+                    TipoCambio tipoCambio = new TipoCambio();
                     for(Element td : tr.select("td")) {
 
                         if(numColumna == 0) {
@@ -44,73 +48,71 @@ public class TipoCambioServicio implements TipoCambioRepositorio {
                         }
 
                         if(numColumna == 1 || numColumna == 2) {
-                            double valTipCam = Double.parseDouble(td.html().toString());
-                            String desTipCam = numColumna == 1 ? "Compra" : "Venta" ;
-                            mapValTipoCambio.put(desTipCam,valTipCam);
+                            if (numColumna == 1)
+                                tipoCompra = Double.parseDouble(td.html().toString());
+                            else
+                                tipoVenta = Double.parseDouble(td.html().toString());
                         }
 
                         // log.info(td.html());
                         numColumna++;
 
                         if(numColumna == 3) {
-                            mapTipCambio.put(diaTipCam, mapValTipoCambio);
+                            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+                            Date fechaTC = formatter.parse(diaTipCam+"/"+mes+"/"+anio);
+
+                            tipoCambio.setFecha(fechaTC);
+                            tipoCambio.setPrecioCompra(tipoCompra);
+                            tipoCambio.setPrecioVenta(tipoVenta);
+                            tipoCambio.setPrecioPromedio((tipoCompra+tipoVenta)/2);
+
+                            tipoCompra = 0;
+                            tipoVenta = 0;
+                            diaTipCam = 0;
                             numColumna = 0;
-                            mapValTipoCambio = new HashMap<>();
+
+                            lstTipoCambio.add(tipoCambio);
+                            tipoCambio = new TipoCambio();
                         }
                     }
                 }
                 numFila++;
             }
 
-            log.info(mapTipCambio.toString());
-            resultado = mapTipCambio;
+            log.info(lstTipoCambio.toString());
+            resultado = lstTipoCambio;
 
         } catch(Exception e){
             log.error(e.toString());
-            resultado = new HashMap<>();
+            resultado = new ArrayList<>();
         }
 
         return resultado;
     }
 
     @Override
-    public TipoCambio obtenerTipoCambioPorDia(int dia, int mes, int anio) {
-        TipoCambio resultado = new TipoCambio();
-
-        try {
-            Map<Integer, Map<String, Double>> tipoCambioPorMes = obtenerDatos(mes, anio);
-
-            double precioCompra = tipoCambioPorMes.get(dia).get("Compra");
-            double precioVenta = tipoCambioPorMes.get(dia).get("Venta");
-
-            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-            Date fechaTC = formatter.parse(dia+"/"+mes+"/"+anio);
-            resultado.setPrecioCompra(precioCompra);
-            resultado.setPrecioVenta(precioVenta);
-            resultado.setFecha(fechaTC);
-            resultado.setPrecioPromedio((precioCompra+precioVenta)/2);
-            log.info(tipoCambioPorMes.toString());
-        } catch(Exception e) {
-            resultado =  new TipoCambio();
-            log.error(e.toString());
-        }
-
+    public TipoCambio obtenerTipoCambioPorDia(int dia, int mes, int anio) throws ParseException {
+        List<TipoCambio> lstTipoCambio = obtenerDatos(mes, anio);
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+        Date fechaTC = formatter.parse(dia+"/"+mes+"/"+anio);
+        TipoCambio resultado = lstTipoCambio
+                                    .stream()
+                                    .filter(tc -> tc.getFecha().equals(fechaTC))
+                                    .findFirst()
+                                    .get();
         return resultado;
     }
 
     @Override
     public List<TipoCambio> obtenerTipoCambioPorMes(int mes, int anio) {
         List<TipoCambio> resultado = new ArrayList<>();
+        List<TipoCambio> lstTipoCambio = obtenerDatos(mes, anio);
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
 
-        try {
-
-            Map<Integer, Map<String, Double>> mapDatos = obtenerDatos(mes, anio);
-            // mapDatos.forEach();
-
-        } catch(Exception e){
-            resultado =  new ArrayList<>();
-            log.error(e.toString());
-        }
+        resultado = lstTipoCambio
+                        .stream()
+                        .sorted(Comparator.comparing(TipoCambio::getFecha))
+                        .collect(Collectors.toList());
 
         return resultado;
     }
