@@ -2,6 +2,7 @@ package com.tipocambio.tipocambio.prueba;
 
 import com.tipocambio.tipocambio.modelos.TipoCambio;
 import com.tipocambio.tipocambio.servicio.TipoCambioServicio;
+import com.tipocambio.tipocambio.util.Helper;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -10,11 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Pruebas {
 
@@ -91,21 +90,31 @@ public class Pruebas {
         } catch(Exception e) {
             log.error(e.toString());
         }*/
-
+/*
         List lstTipoCambioSetiembre = servicio.obtenerDatos(9,2020);
-        log.info(lstTipoCambioSetiembre.toString());
+        log.info(lstTipoCambioSetiembre.toString());*/
     try {
-        TipoCambio tipoCambioHoy = servicio.obtenerTipoCambioPorDia(19,9,2020);
+        TipoCambio tipoCambioHoy = servicio.obtenerTipoCambioPorDia(7,9,2020);
         log.info("\nTipo de cambio para hoy :"+tipoCambioHoy.toString());
     } catch (Exception e) {
         log.error(e.toString());
     }
-
+/*
         List lstTipoCambio = servicio.obtenerTipoCambioPorMes(9,2020);
         lstTipoCambio.forEach(
                 tc -> log.info(tc.toString())
         );
 
-
+       /* String oldDate = "23/09/2020";
+        System.out.println("Date before Addition: "+oldDate);
+        try{
+            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+            Date fechaTC = formatter.parse(oldDate);
+            Date newDate = Helper.sumarDiasAfecha(fechaTC, -1);
+            //Displaying the new Date after addition of Days
+            System.out.println("Date after Addition: "+formatter.format(newDate));
+        }catch(Exception e){
+            e.printStackTrace();
+        }*/
     }
 }

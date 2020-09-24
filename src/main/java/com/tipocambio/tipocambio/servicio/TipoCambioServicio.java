@@ -3,6 +3,7 @@ package com.tipocambio.tipocambio.servicio;
 import com.tipocambio.tipocambio.modelos.TipoCambio;
 import com.tipocambio.tipocambio.prueba.Pruebas;
 import com.tipocambio.tipocambio.repositorio.TipoCambioRepositorio;
+import com.tipocambio.tipocambio.util.Helper;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -81,7 +82,7 @@ public class TipoCambioServicio implements TipoCambioRepositorio {
                 numFila++;
             }
 
-            log.info(lstTipoCambio.toString());
+            //log.info(lstTipoCambio.toString());
             resultado = lstTipoCambio;
 
         } catch(Exception e){
@@ -93,15 +94,33 @@ public class TipoCambioServicio implements TipoCambioRepositorio {
     }
 
     @Override
-    public TipoCambio obtenerTipoCambioPorDia(int dia, int mes, int anio) throws ParseException {
-        List<TipoCambio> lstTipoCambio = obtenerDatos(mes, anio);
-        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-        Date fechaTC = formatter.parse(dia+"/"+mes+"/"+anio);
-        TipoCambio resultado = lstTipoCambio
-                                    .stream()
-                                    .filter(tc -> tc.getFecha().equals(fechaTC))
-                                    .findFirst()
-                                    .get();
+    public TipoCambio obtenerTipoCambioPorDia(int dia, int mes, int anio){
+        TipoCambio resultado = new TipoCambio();
+        Optional<TipoCambio> optionalTipoCambio = Optional.empty();
+        try {
+            List<TipoCambio> lstTipoCambio = obtenerDatos(mes, anio);
+
+            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+            Date fechaTC = formatter.parse(dia+"/"+mes+"/"+anio);
+            final Date[] fechaParaConsultar= {fechaTC};
+
+            boolean firstReading = true;
+            while(!optionalTipoCambio.isPresent()){
+
+                fechaParaConsultar[0] = firstReading == false ? Helper.sumarDiasAfecha(fechaParaConsultar[0], -1) : fechaParaConsultar[0];
+
+                optionalTipoCambio = lstTipoCambio
+                                                .stream()
+                                                .filter(tc -> tc.getFecha().equals(fechaParaConsultar[0]))
+                                                .findFirst();
+
+                firstReading = false;
+            }
+
+            resultado = optionalTipoCambio.isPresent() == false ? new TipoCambio(): optionalTipoCambio.get();
+        } catch(Exception e) {
+            log.error("Error :"+e.toString());
+        }
         return resultado;
     }
 
