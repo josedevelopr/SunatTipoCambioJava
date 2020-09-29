@@ -22,9 +22,9 @@ public class TipoCambioControlador {
 
     @GetMapping("/por-dia")
     public @ResponseBody
-    ResponseEntity obtenerTipoCambioHoy(final @RequestParam(name = "dia") int dia,
-                                    final @RequestParam(name = "mes") int mes,
-                                    final @RequestParam(name = "anio") int anio){
+    ResponseEntity obtenerTipoCambioPorDia( final @RequestParam(name = "dia") int dia,
+                                            final @RequestParam(name = "mes") int mes,
+                                            final @RequestParam(name = "anio") int anio){
         try {
             return new ResponseEntity<TipoCambio>(servicio.obtenerTipoCambioPorDia(dia, mes, anio), HttpStatus.OK);
         } catch (Exception e) {
@@ -34,8 +34,8 @@ public class TipoCambioControlador {
 
     @GetMapping("/por-mes")
     public @ResponseBody
-    ResponseEntity obtenerTipoCambioHoy(final @RequestParam(name = "mes") int mes,
-                                        final @RequestParam(name = "anio") int anio){
+    ResponseEntity obtenerTipoCambioPorMes( final @RequestParam(name = "mes") int mes,
+                                            final @RequestParam(name = "anio") int anio){
         try {
             return new ResponseEntity<List<TipoCambio>>(servicio.obtenerTipoCambioPorMes( mes, anio), HttpStatus.OK);
         } catch (Exception e) {
